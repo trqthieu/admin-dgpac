@@ -39,17 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.login(email, password)
 
       const userData = {
-        id: response.data.user.id,
+        id: response.data.user._id,
         email: response.data.user.email,
-        name: response.data.user.name,
-        token: response.data.token,
+        name: response.data.user.fullName,
+        token: response.data.accessToken,
       }
+      console.log("🚀 ~ login ~ userData:", userData)
 
       setUser(userData)
       localStorage.setItem("admin_user", JSON.stringify(userData))
       return true
     } catch (error) {
-      // Error already handled by interceptor
       return false
     } finally {
       setIsLoading(false)
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await authService.logout()
+      // await authService.logout()
     } catch (error) {
       // Continue with logout even if API call fails
       console.error("Logout API call failed:", error)

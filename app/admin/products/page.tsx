@@ -1,71 +1,81 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Edit, Trash2, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { ProductForm } from "@/components/product-form"
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ProductForm } from '@/components/product-form';
+import { Badge } from '@/components/ui/badge';
+import { getImageUrl, productService } from '@/lib/api-services';
 
 interface Product {
-  id: string
-  title: string
-  image: string
-  description: string
-  range: string[]
-  position: number
+  _id?: string;
+  title: string;
+  image: string;
+  description: string;
+  range: string[];
+  position: number;
 }
 
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    title: "Premium Chemical Solution",
-    image: "/placeholder.svg?height=100&width=100",
-    description: "High-quality chemical solution for industrial applications",
-    range: ["Industrial", "Commercial"],
-    position: 1,
-  },
-  {
-    id: "2",
-    title: "Advanced Oil Treatment",
-    image: "/placeholder.svg?height=100&width=100",
-    description: "Specialized oil treatment for enhanced performance",
-    range: ["Automotive", "Industrial"],
-    position: 2,
-  },
-]
-
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>(mockProducts)
-  console.log("🚀 ~ ProductsPage ~ products:", products)
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [products, setProducts] = useState<Product[]>([]);
+  console.log('🚀 ~ ProductsPage ~ products:', products);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const handleAddProduct = (productData: Omit<Product, "id">) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await productService.getAll();
+        setProducts(response.data.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const handleAddProduct = async (productData: Omit<Product, '_id'>) => {
     const newProduct: Product = {
       ...productData,
-      id: Date.now().toString(),
+    };
+    const result = await productService.create(newProduct);
+    setProducts([...products, newProduct]);
+    setIsFormOpen(false);
+  };
+
+  const handleEditProduct = async (productData: Omit<Product, '_id'>) => {
+    if (editingProduct?._id) {
+      console.log('🚀 ~ handleEditProduct ~ editingProduct:', editingProduct);
+      await productService.update(editingProduct._id, productData);
+      setProducts(
+        products.map((p) =>
+          p._id === editingProduct._id
+            ? { ...productData, _id: editingProduct._id }
+            : p
+        )
+      );
+      setEditingProduct(null);
+      setIsFormOpen(false);
     }
-    console.log("🚀 ~ handleAddProduct ~ newProduct:", newProduct)
-    setProducts([...products, newProduct])
-    setIsFormOpen(false)
-  }
+  };
 
-  const handleEditProduct = (productData: Omit<Product, "id">) => {
-    if (editingProduct) {
-      setProducts(products.map((p) => (p.id === editingProduct.id ? { ...productData, id: editingProduct.id } : p)))
-      setEditingProduct(null)
-      setIsFormOpen(false)
-    }
-  }
+  const handleDeleteProduct = async (id: string) => {
+    await productService.delete(id);
+    setProducts(products.filter((p) => p._id !== id));
+  };
 
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id))
-  }
-
-  const filteredProducts = products.filter((product) => product.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -99,13 +109,15 @@ export default function ProductsPage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <img
-                    src={product.image || "/placeholder.svg"}
+                    src={getImageUrl(product.image) || '/placeholder.svg'}
                     alt={product.title}
                     className="w-12 h-12 rounded-md object-cover"
                   />
                   <div>
                     <CardTitle className="text-lg">{product.title}</CardTitle>
-                    <Badge variant="secondary">Position {product.position}</Badge>
+                    <Badge variant="secondary">
+                      Position {product.position}
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex space-x-1">
@@ -113,20 +125,26 @@ export default function ProductsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setEditingProduct(product)
-                      setIsFormOpen(true)
+                      setEditingProduct(product);
+                      setIsFormOpen(true);
                     }}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDeleteProduct(product.id)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteProduct(product._id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <CardDescription className="mb-3">{product.description}</CardDescription>
+              <CardDescription className="mb-3">
+                {product.description}
+              </CardDescription>
               <div className="flex flex-wrap gap-1">
                 {product.range.map((range, index) => (
                   <Badge key={index} variant="outline">
@@ -144,11 +162,11 @@ export default function ProductsPage() {
           product={editingProduct}
           onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
           onCancel={() => {
-            setIsFormOpen(false)
-            setEditingProduct(null)
+            setIsFormOpen(false);
+            setEditingProduct(null);
           }}
         />
       )}
     </div>
-  )
+  );
 }

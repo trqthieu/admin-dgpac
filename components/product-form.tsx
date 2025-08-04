@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { X, Upload, Plus } from "lucide-react"
+import { getImageUrl, uploadService } from "@/lib/api-services"
 
 interface Product {
-  id: string
+  _id?: string
   title: string
   image: string
   description: string
@@ -23,7 +24,7 @@ interface Product {
 
 interface ProductFormProps {
   product?: Product | null
-  onSubmit: (product: Omit<Product, "id">) => void
+  onSubmit: (product: Omit<Product, "_id">) => void
   onCancel: () => void
 }
 
@@ -42,9 +43,9 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const handleImageUpload = async (file: File) => {
     setIsUploading(true)
     try {
-      // Simulate API call to upload image
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      const imageUrl = `/placeholder.svg?height=200&width=200&text=${encodeURIComponent(file.name)}`
+
+      const response = await uploadService.uploadFile(file)
+      const imageUrl = response.data.path;
       setFormData((prev) => ({ ...prev, image: imageUrl }))
     } catch (error) {
       console.error("Upload failed:", error)
@@ -114,7 +115,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
               <div className="flex items-center space-x-4">
                 {formData.image && (
                   <img
-                    src={formData.image || "/placeholder.svg"}
+                    src={getImageUrl(formData.image) || "/placeholder.svg"}
                     alt="Product preview"
                     className="w-20 h-20 rounded-md object-cover"
                   />
