@@ -1,11 +1,13 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { authService } from "./api-services"
 
 interface User {
   id: string
   email: string
   name: string
+  token?: string
 }
 
 interface AuthContextType {
@@ -33,32 +35,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Use the API service for login
+      const response = await authService.login(email, password)
 
-      // Mock authentication - in real app, validate against backend
-      if (email === "admin@example.com" && password === "admin123") {
-        const userData = {
-          id: "1",
-          email: email,
-          name: "Admin User",
-        }
-        setUser(userData)
-        localStorage.setItem("admin_user", JSON.stringify(userData))
-        return true
+      const userData = {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: response.data.user.name,
+        token: response.data.token,
       }
-      return false
+
+      setUser(userData)
+      localStorage.setItem("admin_user", JSON.stringify(userData))
+      return true
     } catch (error) {
-      console.error("Login error:", error)
+      // Error already handled by interceptor
       return false
     } finally {
       setIsLoading(false)
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("admin_user")
+  const logout = async () => {
+    try {
+      await authService.logout()
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.error("Logout API call failed:", error)
+    } finally {
+      setUser(null)
+      localStorage.removeItem("admin_user")
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
