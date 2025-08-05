@@ -11,17 +11,17 @@ import { X } from "lucide-react"
 import { CodeEditor } from "@/components/code-editor"
 
 interface Blog {
-  id: string
+  _id?: string
   title: string
   tag: string
   description: string
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface BlogFormProps {
   blog?: Blog | null
-  onSubmit: (blog: Omit<Blog, "id" | "createdAt" | "updatedAt">) => void
+  onSubmit: (blog: Omit<Blog, "_id" | "createdAt" | "updatedAt">) => void
   onCancel: () => void
 }
 

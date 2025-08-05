@@ -1,63 +1,67 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Edit, Trash2, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ProjectForm } from "@/components/project-form"
 import { Badge } from "@/components/ui/badge"
+import { getImageUrl, IndustryEnum, projectService, WorkEnum } from "@/lib/api-services"
 
 interface Project {
-  id: string
+  _id?: string
   title: string
   image: string
   description: string
-  industry: "all" | "chemicals" | "oil"
+  industry: IndustryEnum,
+  work: WorkEnum,
 }
 
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "Chemical Processing Plant",
-    image: "/placeholder.svg?height=100&width=100",
-    description: "Large-scale chemical processing facility with advanced automation",
-    industry: "chemicals",
-  },
-  {
-    id: "2",
-    title: "Oil Refinery Modernization",
-    image: "/placeholder.svg?height=100&width=100",
-    description: "Complete modernization of oil refinery infrastructure",
-    industry: "oil",
-  },
-]
+
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects)
+  const [projects, setProjects] = useState<Project[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const handleAddProject = (projectData: Omit<Project, "id">) => {
+
+  useEffect(() => {
+      const fetchProjects = async () => {
+        try {
+          const response = await projectService.getAll();
+          console.log("🚀 ~ fetchProjects ~ response:", response)
+          setProjects(response.data.data);
+        } catch (error) {
+          console.error('Error fetching Projects:', error);
+        }
+      };
+      fetchProjects();
+    }, []);
+
+  const handleAddProject = async (projectData: Omit<Project, "_id">) => {
     const newProject: Project = {
       ...projectData,
-      id: Date.now().toString(),
     }
+    await projectService.create(newProject)
     setProjects([...projects, newProject])
     setIsFormOpen(false)
   }
 
-  const handleEditProject = (projectData: Omit<Project, "id">) => {
-    if (editingProject) {
-      setProjects(projects.map((p) => (p.id === editingProject.id ? { ...projectData, id: editingProject.id } : p)))
+  const handleEditProject = async (projectData: Omit<Project, "_id">) => {
+    if (editingProject?._id) {
+       await projectService.update(editingProject._id, projectData);
+      setProjects(projects.map((p) => (p._id === editingProject._id ? { ...projectData, _id: editingProject._id } : p)))
       setEditingProject(null)
       setIsFormOpen(false)
     }
   }
 
-  const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter((p) => p.id !== id))
+  const handleDeleteProject = async (id?: string) => {
+    if(!id) return;
+    await projectService.delete(id);
+    setProjects(projects.filter((p) => p._id !== id))
   }
 
   const filteredProjects = projects.filter((project) => project.title.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -100,12 +104,12 @@ export default function ProjectsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredProjects.map((project) => (
-          <Card key={project.id}>
+          <Card key={project._id}>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <img
-                    src={project.image || "/placeholder.svg"}
+                    src={getImageUrl(project.image) || "/placeholder.svg"}
                     alt={project.title}
                     className="w-12 h-12 rounded-md object-cover"
                   />
@@ -125,7 +129,7 @@ export default function ProjectsPage() {
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDeleteProject(project.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDeleteProject(project._id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

@@ -11,21 +11,43 @@ export interface Product {
   position: number;
 }
 
+export enum IndustryEnum {
+  ALL = 'all',
+  CHEMICALS = 'chemicals',
+  PHARMACEUTICALS = 'pharmaceuticals & healthcare',
+  OIL_GAS = 'oil & gas',
+  ELECTRONICS = 'electronics & semiconductors',
+  DEFENSE = 'defense & military',
+  ENERGY = 'energy & renewables',
+  CONSUMER_GOODS = 'consumer goods',
+  OTHERS = 'others',
+}
+
+export enum WorkEnum {
+  ALL = 'all',
+  PACKAGING = 'packaging',
+  DECANTING = 'decanting',
+  TRANSPORT = 'transport',
+  WAREHOUSING = 'warehousing',
+  TRAINING = 'training',
+}
+
 export interface Project {
-  id: string;
-  title: string;
-  image: string;
-  description: string;
-  industry: 'all' | 'chemicals' | 'oil';
+  _id?: string
+  title: string
+  image: string
+  description: string
+  industry: IndustryEnum,
+  work: WorkEnum,
 }
 
 export interface Blog {
-  id: string;
+  _id?: string
   title: string;
   tag: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface ApiResponse<T> {
@@ -235,7 +257,7 @@ export const blogService = {
 
   // Create blog
   create: async (
-    blogData: Omit<Blog, 'id' | 'createdAt' | 'updatedAt'>
+    blogData: Omit<Blog, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<ApiResponse<Blog>> => {
     try {
       const response = await apiClient.post('/blogs', blogData);

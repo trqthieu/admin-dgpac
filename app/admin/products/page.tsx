@@ -54,7 +54,6 @@ export default function ProductsPage() {
 
   const handleEditProduct = async (productData: Omit<Product, '_id'>) => {
     if (editingProduct?._id) {
-      console.log('🚀 ~ handleEditProduct ~ editingProduct:', editingProduct);
       await productService.update(editingProduct._id, productData);
       setProducts(
         products.map((p) =>

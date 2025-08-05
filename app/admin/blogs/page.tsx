@@ -1,68 +1,60 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Edit, Trash2, Search, Calendar, Tag } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { BlogForm } from "@/components/blog-form"
 import { Badge } from "@/components/ui/badge"
+import { blogService } from "@/lib/api-services"
 
 interface Blog {
-  id: string
+  _id?: string
   title: string
   tag: string
   description: string
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
-const mockBlogs: Blog[] = [
-  {
-    id: "1",
-    title: "Getting Started with Chemical Processing",
-    tag: "chemicals",
-    description:
-      "# Introduction\n\nThis blog post covers the **basics** of chemical processing and how to get started in the industry.\n\n## Key Points\n\n- Safety first\n- Understanding processes\n- Quality control\n\n> Remember: Always follow safety protocols when working with chemicals.",
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    title: "Oil Industry Trends 2024",
-    tag: "oil",
-    description:
-      "# Oil Industry Outlook\n\nThe oil industry is experiencing significant changes in 2024. Here are the key trends:\n\n1. **Sustainability initiatives**\n2. Digital transformation\n3. Market volatility\n\n```javascript\nconst trends = ['sustainability', 'digital', 'volatility'];\n```",
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-12",
-  },
-]
 
 export default function BlogsPage() {
-  const [blogs, setBlogs] = useState<Blog[]>(mockBlogs)
+  const [blogs, setBlogs] = useState<Blog[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const handleAddBlog = (blogData: Omit<Blog, "id" | "createdAt" | "updatedAt">) => {
+  useEffect(() => {
+        const fetchBlogs = async () => {
+          try {
+            const response = await blogService.getAll();
+            setBlogs(response.data.data);
+          } catch (error) {
+            console.error('Error fetching blogs:', error);
+          }
+        };
+        fetchBlogs();
+      }, []);
+
+  const handleAddBlog = async (blogData: Omit<Blog, "_id" | "createdAt" | "updatedAt">) => {
     const newBlog: Blog = {
       ...blogData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
     }
+    await blogService.create(blogData);
     setBlogs([newBlog, ...blogs])
     setIsFormOpen(false)
   }
 
-  const handleEditBlog = (blogData: Omit<Blog, "id" | "createdAt" | "updatedAt">) => {
-    if (editingBlog) {
+  const handleEditBlog = async (blogData: Omit<Blog, "_id" | "createdAt" | "updatedAt">) => {
+    if (editingBlog?._id) {
+      await blogService.update(editingBlog._id, blogData);
       setBlogs(
         blogs.map((b) =>
-          b.id === editingBlog.id
+          b._id === editingBlog._id
             ? {
                 ...blogData,
-                id: editingBlog.id,
+                _id: editingBlog._id,
                 createdAt: editingBlog.createdAt,
                 updatedAt: new Date().toISOString().split("T")[0],
               }
@@ -74,8 +66,11 @@ export default function BlogsPage() {
     }
   }
 
-  const handleDeleteBlog = (id: string) => {
-    setBlogs(blogs.filter((b) => b.id !== id))
+
+  const handleDeleteBlog = async (id?: string) => {
+    if (!id) return;
+    await blogService.delete(id);
+    setBlogs(blogs.filter((b) => b._id !== id))
   }
 
   const filteredBlogs = blogs.filter(
@@ -134,7 +129,7 @@ export default function BlogsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredBlogs.map((blog) => (
-          <Card key={blog.id} className="flex flex-col">
+          <Card key={blog._id} className="flex flex-col">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -169,15 +164,15 @@ export default function BlogsPage() {
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDeleteBlog(blog.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDeleteBlog(blog._id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1">
+            {/* <CardContent className="flex-1">
               <CardDescription className="text-sm">{truncateDescription(blog.description)}</CardDescription>
-            </CardContent>
+            </CardContent> */}
           </Card>
         ))}
       </div>

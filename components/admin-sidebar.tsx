@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/sidebar"
 
 const navigationItems = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: Home,
-  },
+  // {
+  //   title: "Dashboard",
+  //   url: "/admin",
+  //   icon: Home,
+  // },
   {
     title: "Products",
     url: "/admin/products",
@@ -40,11 +40,11 @@ const navigationItems = [
     url: "/admin/blogs",
     icon: FileText,
   },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-  },
+  // {
+  //   title: "Settings",
+  //   url: "/admin/settings",
+  //   icon: Settings,
+  // },
 ]
 
 export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

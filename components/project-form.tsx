@@ -1,65 +1,84 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { X, Upload } from "lucide-react"
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { X, Upload } from 'lucide-react';
+import {
+  getImageUrl,
+  IndustryEnum,
+  uploadService,
+  WorkEnum,
+} from '@/lib/api-services';
 
 interface Project {
-  id: string
-  title: string
-  image: string
-  description: string
-  industry: "all" | "chemicals" | "oil"
+  _id?: string;
+  title: string;
+  image: string;
+  description: string;
+  industry: IndustryEnum;
+  work: WorkEnum;
 }
 
 interface ProjectFormProps {
-  project?: Project | null
-  onSubmit: (project: Omit<Project, "id">) => void
-  onCancel: () => void
+  project?: Project | null;
+  onSubmit: (project: Omit<Project, 'id'>) => void;
+  onCancel: () => void;
 }
 
 export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
   const [formData, setFormData] = useState({
-    title: project?.title || "",
-    image: project?.image || "",
-    description: project?.description || "",
-    industry: project?.industry || ("all" as const),
-  })
-  const [isUploading, setIsUploading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+    title: project?.title || '',
+    image: project?.image || '',
+    description: project?.description || '',
+    industry: project?.industry || IndustryEnum.ALL,
+    work: project?.work || WorkEnum.ALL,
+  });
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (file: File) => {
-    setIsUploading(true)
+    setIsUploading(true);
     try {
-      // Simulate API call to upload image
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      const imageUrl = `/placeholder.svg?height=200&width=200&text=${encodeURIComponent(file.name)}`
-      setFormData((prev) => ({ ...prev, image: imageUrl }))
+      const response = await uploadService.uploadFile(file);
+      const imageUrl = response.data.path;
+      setFormData((prev) => ({ ...prev, image: imageUrl }));
     } catch (error) {
-      console.error("Upload failed:", error)
+      console.error('Upload failed:', error);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      handleImageUpload(file)
+      handleImageUpload(file);
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -67,8 +86,14 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>{project ? "Edit Project" : "Add New Project"}</CardTitle>
-              <CardDescription>{project ? "Update project information" : "Create a new project entry"}</CardDescription>
+              <CardTitle>
+                {project ? 'Edit Project' : 'Add New Project'}
+              </CardTitle>
+              <CardDescription>
+                {project
+                  ? 'Update project information'
+                  : 'Create a new project entry'}
+              </CardDescription>
             </div>
             <Button variant="ghost" size="sm" onClick={onCancel}>
               <X className="h-4 w-4" />
@@ -82,7 +107,9 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="Enter project title"
                 required
               />
@@ -93,7 +120,7 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <div className="flex items-center space-x-4">
                 {formData.image && (
                   <img
-                    src={formData.image || "/placeholder.svg"}
+                    src={getImageUrl(formData.image) || '/placeholder.svg'}
                     alt="Project preview"
                     className="w-20 h-20 rounded-md object-cover"
                   />
@@ -113,7 +140,7 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
                     disabled={isUploading}
                   >
                     <Upload className="mr-2 h-4 w-4" />
-                    {isUploading ? "Uploading..." : "Upload Image"}
+                    {isUploading ? 'Uploading...' : 'Upload Image'}
                   </Button>
                 </div>
               </div>
@@ -124,7 +151,12 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Enter project description"
                 rows={4}
                 required
@@ -135,7 +167,7 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <Label htmlFor="industry">Industry</Label>
               <Select
                 value={formData.industry}
-                onValueChange={(value: "all" | "chemicals" | "oil") =>
+                onValueChange={(value: keyof typeof IndustryEnum) =>
                   setFormData((prev) => ({ ...prev, industry: value }))
                 }
               >
@@ -143,9 +175,32 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
                   <SelectValue placeholder="Select industry" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Industries</SelectItem>
-                  <SelectItem value="chemicals">Chemicals</SelectItem>
-                  <SelectItem value="oil">Oil & Gas</SelectItem>
+                  {Object.entries(IndustryEnum).map(([key, value]) => (
+                    <SelectItem key={value} value={value}>
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="work">Work</Label>
+              <Select
+                value={formData.work}
+                onValueChange={(value: keyof typeof WorkEnum) =>
+                  setFormData((prev) => ({ ...prev, work: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select work" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(WorkEnum).map(([key, value]) => (
+                    <SelectItem key={value} value={value}>
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -154,11 +209,13 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button type="submit">{project ? "Update Project" : "Create Project"}</Button>
+              <Button type="submit">
+                {project ? 'Update Project' : 'Create Project'}
+              </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
