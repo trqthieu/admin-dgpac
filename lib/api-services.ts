@@ -33,21 +33,35 @@ export enum WorkEnum {
 }
 
 export interface Project {
-  _id?: string
-  title: string
-  image: string
-  description: string
-  industry: IndustryEnum,
-  work: WorkEnum,
+  _id?: string;
+  title: string;
+  image: string;
+  description: string;
+  industry: IndustryEnum;
+  work: WorkEnum;
+}
+
+export interface UserRequest {
+  _id?: string;
+  name: string;
+  companyName: string;
+  email: string;
+  phone: string;
+  location: string;
+  request: string;
+  safetyDataSheet: string;
+  packingList: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Blog {
-  _id?: string
+  _id?: string;
   title: string;
   tag: string;
   description: string;
-  createdAt?: string
-  updatedAt?: string
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiResponse<T> {
@@ -224,6 +238,26 @@ export const projectService = {
   },
 };
 
+export const userRequestService = {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    industry?: string;
+  }): Promise<PaginatedResponse<UserRequest>> => {
+    try {
+      const response = await apiClient.get('/user-requests', { params });
+      toast({
+        title: 'Success',
+        description: 'User requests loaded successfully',
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
 // Blog API Services
 export const blogService = {
   // Get all blogs
@@ -309,7 +343,9 @@ export const uploadService = {
   uploadFile: async (
     file: File,
     onProgress?: (progress: number) => void
-  ): Promise<ApiResponse<{ filename: string; originalname: string, path: string }>> => {
+  ): Promise<
+    ApiResponse<{ filename: string; originalname: string; path: string }>
+  > => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -400,5 +436,7 @@ export const authService = {
 };
 
 export const getImageUrl = (image: string): string => {
-  return image.startsWith('http') ? image : `${process.env.NEXT_PUBLIC_API_URL}/${image}`;
-}
+  return image.startsWith('http')
+    ? image
+    : `${process.env.NEXT_PUBLIC_API_URL}/${image}`;
+};

@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Package, FolderOpen, Settings, Home, FileText, LogOut } from "lucide-react"
+import { Package, FolderOpen, Settings, Home, FileText, LogOut, Send } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth"
@@ -39,6 +39,11 @@ const navigationItems = [
     title: "Blogs",
     url: "/admin/blogs",
     icon: FileText,
+  },
+  {
+    title: "Requests",
+    url: "/admin/requests",
+    icon: Send,
   },
   // {
   //   title: "Settings",

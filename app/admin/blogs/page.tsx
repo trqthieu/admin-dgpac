@@ -40,6 +40,7 @@ export default function BlogsPage() {
   const handleAddBlog = async (blogData: Omit<Blog, "_id" | "createdAt" | "updatedAt">) => {
     const newBlog: Blog = {
       ...blogData,
+      createdAt: new Date().toISOString(),
     }
     await blogService.create(blogData);
     setBlogs([newBlog, ...blogs])
@@ -146,12 +147,8 @@ export default function BlogsPage() {
                       Created: {blog.createdAt}
                     </div>
                   </div>
-                  {blog.updatedAt !== blog.createdAt && (
-                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      Updated: {blog.updatedAt}
-                    </div>
-                  )}
+                 
+
                 </div>
                 <div className="flex space-x-1">
                   <Button

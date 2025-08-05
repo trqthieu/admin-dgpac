@@ -48,7 +48,7 @@ export default function ProductsPage() {
       ...productData,
     };
     const result = await productService.create(newProduct);
-    setProducts([...products, newProduct]);
+    setProducts([newProduct, ...products]);
     setIsFormOpen(false);
   };
 

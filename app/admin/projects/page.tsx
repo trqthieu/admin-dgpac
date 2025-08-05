@@ -45,7 +45,7 @@ export default function ProjectsPage() {
       ...projectData,
     }
     await projectService.create(newProject)
-    setProjects([...projects, newProject])
+    setProjects([newProject, ...projects])
     setIsFormOpen(false)
   }
 
