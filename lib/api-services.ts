@@ -58,7 +58,8 @@ export interface UserRequest {
 export interface Blog {
   _id?: string;
   title: string;
-  tag: string;
+  link: string
+  // tag: string;
   description: string;
   createdAt?: string;
   updatedAt?: string;
@@ -252,6 +253,17 @@ export const userRequestService = {
         description: 'User requests loaded successfully',
       });
       return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  exportXlsx: async (): Promise<Blob> => {
+    try {
+      const response = await apiClient.get('/user-requests/export');
+      if (!response.ok) {
+        throw new Error('Failed to export Excel');
+      }
+      return await response.blob();
     } catch (error) {
       throw error;
     }

@@ -13,7 +13,8 @@ import { CodeEditor } from "@/components/code-editor"
 interface Blog {
   _id?: string
   title: string
-  tag: string
+  link: string
+  // tag: string
   description: string
   createdAt?: string
   updatedAt?: string
@@ -28,7 +29,8 @@ interface BlogFormProps {
 export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
   const [formData, setFormData] = useState({
     title: blog?.title || "",
-    tag: blog?.tag || "",
+    link: blog?.link || "",
+    // tag: blog?.tag || "",
     description: blog?.description || "",
   })
 
@@ -65,13 +67,26 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="tag">Tag</Label>
                 <Input
                   id="tag"
                   value={formData.tag}
                   onChange={(e) => setFormData((prev) => ({ ...prev, tag: e.target.value }))}
                   placeholder="e.g., chemicals, oil, technology"
+                  required
+                />
+              </div> */}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Blog Link</Label>
+                <Input
+                  id="title"
+                  value={formData.link}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, link: e.target.value }))}
+                  placeholder="Enter blog title"
                   required
                 />
               </div>

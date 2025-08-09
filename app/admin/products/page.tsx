@@ -26,29 +26,29 @@ interface Product {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  console.log('🚀 ~ ProductsPage ~ products:', products);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await productService.getAll();
+        const response = await productService.getAll({ page, search: searchTerm });
         setProducts(response.data.data);
+        setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
     fetchProducts();
-  }, []);
+  }, [page, searchTerm]);
 
   const handleAddProduct = async (productData: Omit<Product, '_id'>) => {
-    const newProduct: Product = {
-      ...productData,
-    };
+    const newProduct: Product = { ...productData };
     const result = await productService.create(newProduct);
-    setProducts([newProduct, ...products]);
+    setProducts([result.data, ...products]);
     setIsFormOpen(false);
   };
 
@@ -71,10 +71,6 @@ export default function ProductsPage() {
     await productService.delete(id);
     setProducts(products.filter((p) => p._id !== id));
   };
-
-  const filteredProducts = products.filter((product) =>
-    product.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -102,8 +98,8 @@ export default function ProductsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredProducts.map((product) => (
-          <Card key={product.id}>
+        {products.map((product) => (
+          <Card key={product._id}>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
@@ -133,7 +129,7 @@ export default function ProductsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDeleteProduct(product._id)}
+                    onClick={() => handleDeleteProduct(product._id!)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -154,6 +150,26 @@ export default function ProductsPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="flex justify-center mt-6 space-x-2">
+        <Button
+          variant="outline"
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </Button>
+        <span className="px-2 py-1 text-sm">
+          Page {page} of {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </Button>
       </div>
 
       {isFormOpen && (

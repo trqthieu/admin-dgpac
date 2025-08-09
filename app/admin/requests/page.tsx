@@ -9,67 +9,60 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search, Download } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
-  getImageUrl,
-  IndustryEnum,
-  UserRequest,
-  userRequestService,
-  WorkEnum,
-} from '@/lib/api-services';
-
-interface Request {
-  _id?: string;
-  title: string;
-  image: string;
-  description: string;
-  industry: IndustryEnum;
-  work: WorkEnum;
-}
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Download, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { userRequestService, UserRequest } from '@/lib/api-services';
 
 export default function RequestsPage() {
   const [requests, setRequests] = useState<UserRequest[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<Request | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedRequest, setSelectedRequest] = useState<UserRequest | null>(
+    null
+  );
+
+  const handleExport = async () => {
+    try {
+
+      // const blob = await userRequestService.exportXlsx();
+      // const url = window.URL.createObjectURL(blob);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = 'user-requests.xlsx';
+      // document.body.appendChild(a);
+      // a.click();
+      // window.URL.revokeObjectURL(url);
+      // document.body.removeChild(a);
+
+    } catch (error) {
+      console.error('Export error:', error);
+    } finally {
+    }
+  };
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await userRequestService.getAll();
-        console.log('🚀 ~ fetchRequests ~ response:', response);
+        const response = await userRequestService.getAll({
+          page,
+          search: searchTerm,
+        });
         setRequests(response.data.data);
+        setTotalPages(response.data.totalPages);
       } catch (error) {
-        console.error('Error fetching Requests:', error);
+        console.error('Error fetching requests:', error);
       }
     };
+
     fetchRequests();
-  }, []);
-
- 
-
-  // const handleDeleteRequest = async (id?: string) => {
-  //   if (!id) return;
-  //   await requestService.delete(id);
-  //   setRequests(requests.filter(p => p._id !== id));
-  // };
-
-  const filteredRequests = requests.filter(request =>
-    request.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const getIndustryColor = (industry: string) => {
-    switch (industry) {
-      case 'chemicals':
-        return 'bg-blue-100 text-blue-800';
-      case 'oil':
-        return 'bg-orange-100 text-orange-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  }, [page, searchTerm]);
 
   return (
     <div className='flex flex-1 flex-col gap-4 p-4'>
@@ -78,7 +71,9 @@ export default function RequestsPage() {
           <h1 className='text-3xl font-bold tracking-tight'>Requests</h1>
           <p className='text-muted-foreground'>Manage your request portfolio</p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)}>
+        <Button
+          onClick={handleExport}
+        >
           <Download className='mr-2 h-4 w-4' />
           Export Request
         </Button>
@@ -90,79 +85,105 @@ export default function RequestsPage() {
           <Input
             placeholder='Search requests...'
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={e => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
             className='pl-8'
           />
         </div>
       </div>
 
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {filteredRequests.map(request => (
-          <Card key={request._id}>
+        {requests.map(request => (
+          <Card
+            key={request._id}
+            onClick={() => setSelectedRequest(request)}
+            className='cursor-pointer hover:shadow-md transition-shadow'
+          >
             <CardHeader>
-              <div className='flex items-start justify-between'>
-                <div className='flex items-center space-x-3'>
-                 
-                  <div>
-                    <CardTitle className='text-lg'>{request.name}</CardTitle>
-                  </div>
-                </div>
-                {/* <div className='flex space-x-1'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => {
-                      setEditingRequest(request);
-                      setIsFormOpen(true);
-                    }}
-                  >
-                    <Edit className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => handleDeleteRequest(request._id)}
-                  >
-                    <Trash2 className='h-4 w-4' />
-                  </Button>
-                </div> */}
-              </div>
+              <CardTitle className='text-lg'>{request.companyName}</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>{request.companyName}</CardDescription>
+              <CardDescription>Email: {request.email}</CardDescription>
             </CardContent>
             <CardContent>
-              <CardDescription>{request.email}</CardDescription>
-            </CardContent>
-            <CardContent>
-              <CardDescription>{request.phone}</CardDescription>
-            </CardContent>
-            <CardContent>
-              <CardDescription>{request.location}</CardDescription>
-            </CardContent>
-            <CardContent>
-              <CardDescription>{request.request}</CardDescription>
-            </CardContent>
-            <CardContent>
-              <CardDescription>{request.safetyDataSheet}</CardDescription>
-            </CardContent>
-            <CardContent>
-              <CardDescription>{request.packingList}</CardDescription>
+              <CardDescription>Request: {request.request}</CardDescription>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* {isFormOpen && (
-        <RequestForm
-          request={editingRequest}
-          onSubmit={editingRequest ? handleEditRequest : handleAddRequest}
-          onCancel={() => {
-            setIsFormOpen(false);
-            setEditingRequest(null);
-          }}
-        />
-      )} */}
+      {requests.length === 0 && (
+        <div className='text-center py-12'>
+          <p className='text-muted-foreground'>
+            No requests found matching your search.
+          </p>
+        </div>
+      )}
+
+      <div className='flex justify-center mt-6 space-x-2'>
+        <Button
+          variant='outline'
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </Button>
+        <span className='px-2 py-1 text-sm'>
+          Page {page} of {totalPages}
+        </span>
+        <Button
+          variant='outline'
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </Button>
+      </div>
+
+      {/* Dialog (Modal) */}
+      <Dialog
+        open={!!selectedRequest}
+        onOpenChange={() => setSelectedRequest(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Details</DialogTitle>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className='space-y-2 text-sm'>
+              <p>
+                <strong>Name:</strong> {selectedRequest.name}
+              </p>
+              <p>
+                <strong>Company:</strong> {selectedRequest.companyName}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedRequest.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {selectedRequest.phone}
+              </p>
+              <p>
+                <strong>Location:</strong> {selectedRequest.location}
+              </p>
+              <p>
+                <strong>Request:</strong> {selectedRequest.request}
+              </p>
+              <p>
+                <strong>Safety Data Sheet:</strong>{' '}
+                {selectedRequest.safetyDataSheet}
+              </p>
+              <p>
+                <strong>Packing List:</strong> {selectedRequest.packingList}
+              </p>
+              {/* <p><strong>Industry:</strong> {selectedRequest.industry}</p> */}
+              {/* <p><strong>Work Type:</strong> {selectedRequest.work}</p> */}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
