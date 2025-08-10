@@ -26,8 +26,8 @@ interface Blog {
   _id?: string;
   title: string;
   link: string
-  // tag: string;
-  description: string;
+  tag: string;
+  // description: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -93,7 +93,7 @@ export default function BlogsPage() {
   };
 
   const getTagColor = (tag: string) => {
-    switch (tag.toLowerCase()) {
+    switch (tag?.toLowerCase()) {
       case 'chemicals':
         return 'bg-blue-100 text-blue-800';
       case 'oil':
@@ -145,12 +145,12 @@ export default function BlogsPage() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardTitle className="text-lg mb-2">{blog.title}</CardTitle>
-                  {/* <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <Badge className={getTagColor(blog.tag)}>
                       <Tag className="w-3 h-3 mr-1" />
                       {blog.tag}
                     </Badge>
-                  </div> */}
+                  </div>
                   <div className="flex items-center text-xs text-muted-foreground space-x-4">
                     <div className="flex items-center">
                       <Calendar className="w-3 h-3 mr-1" />
@@ -175,11 +175,11 @@ export default function BlogsPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1">
+            {/* <CardContent className="flex-1">
               <CardDescription className="text-sm">
                 {truncateDescription(blog.description)}
               </CardDescription>
-            </CardContent>
+            </CardContent> */}
           </Card>
         ))}
       </div>

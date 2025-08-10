@@ -12,10 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { X, Upload, Plus } from "lucide-react"
 import { getImageUrl, uploadService } from "@/lib/api-services"
+import { CodeEditor } from "@/components/code-editor"
 
 interface Product {
   _id?: string
   title: string
+  content: string
   image: string
   description: string
   range: string[]
@@ -33,6 +35,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     title: product?.title || "",
     image: product?.image || "",
     description: product?.description || "",
+    content: product?.content || "",
     range: product?.range || [],
     position: product?.position || 1,
   })
@@ -151,6 +154,18 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
                 rows={4}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Content</Label>
+              <CodeEditor
+                value={formData.content}
+                onChange={(value) => setFormData((prev) => ({ ...prev, content: value }))}
+                placeholder="Start writing your blog content... You can use Markdown formatting!"
+              />
+              <p className="text-xs text-muted-foreground">
+                Supports Markdown formatting: **bold**, *italic*, `code`, # headings, &gt; quotes, - lists, and more.
+              </p>
             </div>
 
             <div className="space-y-2">

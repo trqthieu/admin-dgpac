@@ -7,6 +7,7 @@ export interface Product {
   title: string;
   image: string;
   description: string;
+  content: string;
   range: string[];
   position: number;
 }
@@ -36,6 +37,7 @@ export interface Project {
   _id?: string;
   title: string;
   image: string;
+  content: string;
   description: string;
   industry: IndustryEnum;
   work: WorkEnum;
@@ -59,8 +61,8 @@ export interface Blog {
   _id?: string;
   title: string;
   link: string
-  // tag: string;
-  description: string;
+  tag: string;
+  // description: string;
   createdAt?: string;
   updatedAt?: string;
 }

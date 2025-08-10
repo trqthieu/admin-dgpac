@@ -28,12 +28,14 @@ import {
   uploadService,
   WorkEnum,
 } from '@/lib/api-services';
+import { CodeEditor } from "@/components/code-editor"
 
 interface Project {
   _id?: string;
   title: string;
   image: string;
   description: string;
+  content: string;
   industry: IndustryEnum;
   work: WorkEnum;
 }
@@ -49,6 +51,7 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
     title: project?.title || '',
     image: project?.image || '',
     description: project?.description || '',
+    content: project?.content || '',
     industry: project?.industry || IndustryEnum.ALL,
     work: project?.work || WorkEnum.ALL,
   });
@@ -60,7 +63,7 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
     try {
       const response = await uploadService.uploadFile(file);
       const imageUrl = response.data.path;
-      setFormData((prev) => ({ ...prev, image: imageUrl }));
+      setFormData(prev => ({ ...prev, image: imageUrl }));
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -81,10 +84,10 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className='flex items-center justify-between'>
             <div>
               <CardTitle>
                 {project ? 'Edit Project' : 'Add New Project'}
@@ -95,84 +98,99 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
                   : 'Create a new project entry'}
               </CardDescription>
             </div>
-            <Button variant="ghost" size="sm" onClick={onCancel}>
-              <X className="h-4 w-4" />
+            <Button variant='ghost' size='sm' onClick={onCancel}>
+              <X className='h-4 w-4' />
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Project Title</Label>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            <div className='space-y-2'>
+              <Label htmlFor='title'>Project Title</Label>
               <Input
-                id="title"
+                id='title'
                 value={formData.title}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Enter project title"
+                placeholder='Enter project title'
                 required
               />
             </div>
 
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Label>Project Image</Label>
-              <div className="flex items-center space-x-4">
+              <div className='flex items-center space-x-4'>
                 {formData.image && (
                   <img
                     src={getImageUrl(formData.image) || '/placeholder.svg'}
-                    alt="Project preview"
-                    className="w-20 h-20 rounded-md object-cover"
+                    alt='Project preview'
+                    className='w-20 h-20 rounded-md object-cover'
                   />
                 )}
-                <div className="flex-1">
+                <div className='flex-1'>
                   <Input
-                    type="file"
+                    type='file'
                     ref={fileInputRef}
                     onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
+                    accept='image/*'
+                    className='hidden'
                   />
                   <Button
-                    type="button"
-                    variant="outline"
+                    type='button'
+                    variant='outline'
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
                   >
-                    <Upload className="mr-2 h-4 w-4" />
+                    <Upload className='mr-2 h-4 w-4' />
                     {isUploading ? 'Uploading...' : 'Upload Image'}
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='description'>Description</Label>
               <Textarea
-                id="description"
+                id='description'
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     description: e.target.value,
                   }))
                 }
-                placeholder="Enter project description"
+                placeholder='Enter project description'
                 rows={4}
                 required
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="industry">Industry</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='description'>Content</Label>
+              <CodeEditor
+                value={formData.content}
+                onChange={value =>
+                  setFormData(prev => ({ ...prev, content: value }))
+                }
+                placeholder='Start writing your blog content... You can use Markdown formatting!'
+              />
+              <p className='text-xs text-muted-foreground'>
+                Supports Markdown formatting: **bold**, *italic*, `code`, #
+                headings, &gt; quotes, - lists, and more.
+              </p>
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='industry'>Industry</Label>
               <Select
                 value={formData.industry}
-                onValueChange={(value: keyof typeof IndustryEnum) =>
-                  setFormData((prev) => ({ ...prev, industry: value }))
+                onValueChange={(value: string) =>
+                  setFormData(prev => ({ ...prev, industry: value as IndustryEnum }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select industry" />
+                  <SelectValue placeholder='Select industry' />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(IndustryEnum).map(([key, value]) => (
@@ -184,16 +202,16 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="work">Work</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='work'>Work</Label>
               <Select
                 value={formData.work}
-                onValueChange={(value: keyof typeof WorkEnum) =>
-                  setFormData((prev) => ({ ...prev, work: value }))
+                onValueChange={(value: string) =>
+                  setFormData(prev => ({ ...prev, work: value as WorkEnum }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select work" />
+                  <SelectValue placeholder='Select work' />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(WorkEnum).map(([key, value]) => (
@@ -205,11 +223,11 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               </Select>
             </div>
 
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={onCancel}>
+            <div className='flex justify-end space-x-2'>
+              <Button type='button' variant='outline' onClick={onCancel}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type='submit'>
                 {project ? 'Update Project' : 'Create Project'}
               </Button>
             </div>

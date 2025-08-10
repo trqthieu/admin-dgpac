@@ -14,8 +14,8 @@ interface Blog {
   _id?: string
   title: string
   link: string
-  // tag: string
-  description: string
+  tag: string
+  // description: string
   createdAt?: string
   updatedAt?: string
 }
@@ -30,8 +30,8 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
   const [formData, setFormData] = useState({
     title: blog?.title || "",
     link: blog?.link || "",
-    // tag: blog?.tag || "",
-    description: blog?.description || "",
+    tag: blog?.tag || "",
+    // description: blog?.description || "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,7 +67,7 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
                 />
               </div>
 
-              {/* <div className="space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="tag">Tag</Label>
                 <Input
                   id="tag"
@@ -76,7 +76,7 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
                   placeholder="e.g., chemicals, oil, technology"
                   required
                 />
-              </div> */}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +92,7 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="description">Content</Label>
               <CodeEditor
                 value={formData.description}
@@ -102,7 +102,7 @@ export function BlogForm({ blog, onSubmit, onCancel }: BlogFormProps) {
               <p className="text-xs text-muted-foreground">
                 Supports Markdown formatting: **bold**, *italic*, `code`, # headings, &gt; quotes, - lists, and more.
               </p>
-            </div>
+            </div> */}
 
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={onCancel}>

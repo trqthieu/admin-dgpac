@@ -20,6 +20,7 @@ interface Project {
   title: string;
   image: string;
   description: string;
+  content: string;
   industry: IndustryEnum;
   work: WorkEnum;
 }

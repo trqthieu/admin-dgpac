@@ -18,6 +18,7 @@ import { getImageUrl, productService } from '@/lib/api-services';
 interface Product {
   _id?: string;
   title: string;
+  content: string;
   image: string;
   description: string;
   range: string[];
