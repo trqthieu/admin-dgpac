@@ -31,15 +31,15 @@ export default function RequestsPage() {
   const handleExport = async () => {
     try {
 
-      // const blob = await userRequestService.exportXlsx();
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = 'user-requests.xlsx';
-      // document.body.appendChild(a);
-      // a.click();
-      // window.URL.revokeObjectURL(url);
-      // document.body.removeChild(a);
+      const blob = await userRequestService.exportXlsx();
+     const url = window.URL.createObjectURL(new Blob([blob]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'user-requests.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
     } catch (error) {
       console.error('Export error:', error);

@@ -261,11 +261,10 @@ export const userRequestService = {
   },
   exportXlsx: async (): Promise<Blob> => {
     try {
-      const response = await apiClient.get('/user-requests/export');
-      if (!response.ok) {
-        throw new Error('Failed to export Excel');
-      }
-      return await response.blob();
+      const response = await apiClient.get('/user-requests/export',{
+        responseType: 'blob',
+      });
+      return  response;
     } catch (error) {
       throw error;
     }
