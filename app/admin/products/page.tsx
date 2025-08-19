@@ -21,6 +21,7 @@ interface Product {
   content: string;
   image: string;
   description: string;
+  linkSharepoint: string;
   range: string[];
   position: number;
 }

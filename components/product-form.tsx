@@ -20,6 +20,7 @@ interface Product {
   content: string
   image: string
   description: string
+  linkSharepoint: string
   range: string[]
   position: number
 }
@@ -36,6 +37,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     image: product?.image || "",
     description: product?.description || "",
     content: product?.content || "",
+    linkSharepoint: product?.linkSharepoint || "",
     range: product?.range || [],
     position: product?.position || 1,
   })
@@ -152,6 +154,17 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 placeholder="Enter product description"
                 rows={4}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title">Link sharepoint</Label>
+              <Input
+                id="title"
+                value={formData.linkSharepoint}
+                onChange={(e) => setFormData((prev) => ({ ...prev, linkSharepoint: e.target.value }))}
+                placeholder="Enter link sharepoint"
                 required
               />
             </div>

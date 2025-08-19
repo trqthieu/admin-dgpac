@@ -7,6 +7,7 @@ export interface Product {
   title: string;
   image: string;
   description: string;
+  linkSharepoint: string;
   content: string;
   range: string[];
   position: number;

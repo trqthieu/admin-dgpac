@@ -13,7 +13,12 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ProjectForm } from '@/components/project-form';
 import { Badge } from '@/components/ui/badge';
-import { getImageUrl, IndustryEnum, projectService, WorkEnum } from '@/lib/api-services';
+import {
+  getImageUrl,
+  IndustryEnum,
+  projectService,
+  WorkEnum,
+} from '@/lib/api-services';
 
 interface Project {
   _id?: string;
@@ -23,6 +28,7 @@ interface Project {
   content: string;
   industry: IndustryEnum;
   work: WorkEnum;
+  createdAt?: string;
 }
 
 export default function ProjectsPage() {
@@ -36,7 +42,10 @@ export default function ProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await projectService.getAll({ page, search: searchTerm });
+        const response = await projectService.getAll({
+          page,
+          search: searchTerm,
+        });
         setProjects(response.data.data);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -85,6 +94,16 @@ export default function ProjectsPage() {
     }
   };
 
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
@@ -123,6 +142,9 @@ export default function ProjectsPage() {
                   />
                   <div>
                     <CardTitle className="text-lg">{project.title}</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(project.createdAt)}
+                    </p>
                     <Badge className={getIndustryColor(project.industry)}>
                       {project.industry}
                     </Badge>
