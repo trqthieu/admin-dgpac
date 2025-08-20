@@ -45,6 +45,11 @@ export default function RequestsPage() {
     }
   };
 
+  const generateDownloadLink = (fileName: string) => {
+    return `${process.env.NEXT_PUBLIC_API_URL}/${fileName}`;  
+  }
+
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -120,8 +125,8 @@ export default function RequestsPage() {
                   <TableCell className="truncate max-w-xs">
                     {request.request}
                   </TableCell>
-                  <TableCell>{request.safetyDataSheet}</TableCell>
-                  <TableCell>{request.packingList}</TableCell>
+                  <TableCell>{generateDownloadLink(request.safetyDataSheet)}</TableCell>
+                  <TableCell>{generateDownloadLink(request.packingList)}</TableCell>
                 </TableRow>
               ))
             ) : (
@@ -185,10 +190,10 @@ export default function RequestsPage() {
               </p>
               <p>
                 <strong>Safety Data Sheet:</strong>{' '}
-                {selectedRequest.safetyDataSheet}
+                {generateDownloadLink(selectedRequest.safetyDataSheet)}
               </p>
               <p>
-                <strong>Packing List:</strong> {selectedRequest.packingList}
+                <strong>Packing List:</strong> {generateDownloadLink(selectedRequest.packingList)}
               </p>
             </div>
           )}
