@@ -171,10 +171,23 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="description">Content</Label>
-              <CodeEditor
+              {/* <CodeEditor
                 value={formData.content}
                 onChange={(value) => setFormData((prev) => ({ ...prev, content: value }))}
                 placeholder="Start writing your blog content... You can use Markdown formatting!"
+              /> */}
+
+               <CodeEditor
+                value={formData.content}
+                onChange={value =>
+                  setFormData(prev => ({ ...prev, content: value }))
+                }
+                onImageUpload={async file => {
+                  // Your upload logic here
+                  const response = await uploadService.uploadFile(file);
+                  return response.data.path; // Return the image URL
+                }}
+                placeholder='Start writing your content...'
               />
               <p className="text-xs text-muted-foreground">
                 Supports Markdown formatting: **bold**, *italic*, `code`, # headings, &gt; quotes, - lists, and more.

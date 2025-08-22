@@ -28,7 +28,7 @@ import {
   uploadService,
   WorkEnum,
 } from '@/lib/api-services';
-import { CodeEditor } from "@/components/code-editor"
+import { CodeEditor } from '@/components/code-editor';
 
 interface Project {
   _id?: string;
@@ -168,12 +168,25 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
 
             <div className='space-y-2'>
               <Label htmlFor='description'>Content</Label>
-              <CodeEditor
+              {/* <CodeEditor
                 value={formData.content}
                 onChange={value =>
                   setFormData(prev => ({ ...prev, content: value }))
                 }
                 placeholder='Start writing your blog content... You can use Markdown formatting!'
+              /> */}
+
+              <CodeEditor
+                value={formData.content}
+                onChange={value =>
+                  setFormData(prev => ({ ...prev, content: value }))
+                }
+                onImageUpload={async file => {
+                  // Your upload logic here
+                  const response = await uploadService.uploadFile(file);
+                  return response.data.path; // Return the image URL
+                }}
+                placeholder='Start writing your content...'
               />
               <p className='text-xs text-muted-foreground'>
                 Supports Markdown formatting: **bold**, *italic*, `code`, #
@@ -186,7 +199,10 @@ export function ProjectForm({ project, onSubmit, onCancel }: ProjectFormProps) {
               <Select
                 value={formData.industry}
                 onValueChange={(value: string) =>
-                  setFormData(prev => ({ ...prev, industry: value as IndustryEnum }))
+                  setFormData(prev => ({
+                    ...prev,
+                    industry: value as IndustryEnum,
+                  }))
                 }
               >
                 <SelectTrigger>
